@@ -1,0 +1,50 @@
+name: Bug report
+description: Something didn't work the way it should
+labels: [bug]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Include the exact command you ran and the full output/error.
+      placeholder: |
+        $ shufflebase run --config staging.yaml
+        ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: A minimal schema/config that reproduces this, if possible.
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Shufflebase version
+      description: Output of `shufflebase --version`
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, Python version, and the database engine + version (Postgres/MySQL) involved.
+      placeholder: |
+        OS: macOS 15
+        Python: 3.12.4
+        Database: Postgres 16
+    validations:
+      required: true
+
+  - type: textarea
+    id: validation-output
+    attributes:
+      label: Output of `shufflebase validate --target <url>`
+      description: If this is a masking/referential-integrity bug, paste the validation output.
+    validations:
+      required: false
