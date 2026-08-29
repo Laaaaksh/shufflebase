@@ -1,0 +1,60 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "shufflebase"
+version = "0.1.0"
+description = "Database-aware synthetic test-data and masking, with referential integrity preserved across foreign keys."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [{ name = "Laksh Sadhwani" }]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Database",
+    "Topic :: Software Development :: Testing",
+]
+dependencies = [
+    "sqlalchemy>=2.0,<3.0",
+    "faker>=25.0",
+    "click>=8.1",
+    "pyyaml>=6.0",
+    "rich>=13.0",
+]
+
+[project.optional-dependencies]
+postgres = ["psycopg[binary]>=3.1"]
+mysql = ["pymysql>=1.1"]
+web = ["fastapi>=0.110", "uvicorn[standard]>=0.29"]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "ruff>=0.5",
+    "mypy>=1.10",
+    "types-PyYAML>=6.0",
+    "build>=1.2",
+]
+
+[project.urls]
+Homepage = "https://github.com/Laaaaksh/shufflebase"
+Issues = "https://github.com/Laaaaksh/shufflebase/issues"
+Changelog = "https://github.com/Laaaaksh/shufflebase/blob/main/CHANGELOG.md"
+
+[project.scripts]
+shufflebase = "shufflebase.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/shufflebase"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

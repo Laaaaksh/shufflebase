@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Shufflebase</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">&#9635;&#9633;&#9635;</span>
+      <span class="brand-name">shufflebase</span>
+    </div>
+    <div class="tagline">database-aware synthetic data &amp; masking</div>
+  </header>
+
+  <main>
+    <section class="panel" id="connect-panel">
+      <h2>1. Connect</h2>
+      <div class="row">
+        <input id="source-url" type="text" placeholder="postgresql://user:pass@host/db" autocomplete="off" />
+        <button id="connect-btn">Introspect</button>
+      </div>
+      <p class="hint">Reads table, column, and foreign-key structure. Nothing is written yet.</p>
+      <div id="connect-error" class="error" hidden></div>
+    </section>
+
+    <section class="panel" id="schema-panel" hidden>
+      <h2>2. Review masking strategies</h2>
+      <p class="hint">Suggested strategies are pre-selected. Key and foreign-key columns are
+        restricted to strategies that keep joins valid.</p>
+      <div id="tables"></div>
+    </section>
+
+    <section class="panel" id="run-panel" hidden>
+      <h2>3. Run</h2>
+      <div class="row">
+        <input id="target-url" type="text" placeholder="postgresql://user:pass@host/staging_db" autocomplete="off" />
+        <input id="seed" type="number" placeholder="seed (optional)" class="seed-input" />
+        <button id="run-btn">Run masking</button>
+      </div>
+      <div id="run-error" class="error" hidden></div>
+      <div id="run-result" hidden>
+        <h3>Result</h3>
+        <table class="result-table">
+          <thead><tr><th>Table</th><th>Rows written</th></tr></thead>
+          <tbody id="result-rows"></tbody>
+        </table>
+        <div id="integrity-status"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>
