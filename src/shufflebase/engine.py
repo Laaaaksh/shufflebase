@@ -114,7 +114,7 @@ class MaskRun:
                 rows = [dict(row._mapping) for row in source_conn.execute(select(sa_table))]
 
                 self._build_key_remaps(table_name, table_info, rows, faker, remaps)
-                self._apply_shuffles(table_info, rows, rng)
+                self._apply_shuffles(table_name, table_info, rows, rng, remaps)
                 transformed = self._transform_rows(table_name, table_info, rows, faker, remaps)
 
                 if transformed:
@@ -154,17 +154,34 @@ class MaskRun:
             distinct_values = {row[column_name] for row in rows}
             remaps[(table_name, column_name)] = _build_remap(faker, strategy_fn, distinct_values)
 
-    def _apply_shuffles(self, table_info, rows: list[dict], rng: random.Random) -> None:
+    def _apply_shuffles(
+        self,
+        table_name: str,
+        table_info,
+        rows: list[dict],
+        rng: random.Random,
+        remaps: dict[tuple[str, str], dict[object, object]],
+    ) -> None:
         """Permute each shuffle-strategy column's existing values across this
-        table's rows in place. Safe on any column, including keys and FKs:
-        the value *set* is unchanged, only which row holds which value."""
-        for column_name in table_info.columns:
-            strategy_name = self.config.strategy_for(table_info.name, column_name)
+        table's rows in place. The value *set* is unchanged, only which row
+        holds which value -- but for a key column (a primary key, or a column
+        another table's FK points at), *which row* holds a value is exactly
+        what other tables' foreign keys need to follow: record the old ->
+        new mapping so ``_transform_rows`` can propagate it to every FK
+        column elsewhere that references this one, the same way a
+        resynthesized key's remap propagates."""
+        for column_name, column in table_info.columns.items():
+            strategy_name = self.config.strategy_for(table_name, column_name)
             if strategy_name != "shuffle" or not rows:
                 continue
-            values = [row[column_name] for row in rows]
-            rng.shuffle(values)
-            for row, new_value in zip(rows, values, strict=True):
+            old_values = [row[column_name] for row in rows]
+            new_values = list(old_values)
+            rng.shuffle(new_values)
+            if column.references is None and column.is_key_column:
+                remaps[(table_name, column_name)] = dict(
+                    zip(old_values, new_values, strict=True)
+                )
+            for row, new_value in zip(rows, new_values, strict=True):
                 row[column_name] = new_value
 
     def _transform_rows(

@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `shuffle`-ing a primary key or a natural key another table's foreign key
+  points at no longer silently reassigns referencing rows to the wrong
+  logical parent. The permutation now builds the same stable remap a
+  resynthesized key gets, so every referencing foreign key column follows it.
+  Previously this passed `result.ok` and "All foreign keys resolve
+  correctly" while every join returned the wrong parent row.
+- README's `Usage` examples now use dialect-qualified connection URLs
+  (`postgresql+psycopg://`, `mysql+pymysql://`) instead of bare
+  `postgresql://`/`mysql://`, which fail with a `ModuleNotFoundError` because
+  neither default DBAPI driver is installed by the `postgres`/`mysql` extras.
+
 ## [0.1.0] - 2026-08-29
 
 ### Added

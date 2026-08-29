@@ -35,7 +35,7 @@ containers — see `.github/workflows/ci.yml`.
 
 ## Workflow
 
-- `main` is protected. Every change lands through a pull request.
+- `master` is protected. Every change lands through a pull request.
 - Required checks (must be named exactly this in your PR): `test`, `lint`.
 - Run `make lint` and `make test` locally before opening a PR — CI runs the
   same commands, so a failure there is a failure here first.
@@ -69,7 +69,7 @@ containers — see `.github/workflows/ci.yml`.
 1. Move the `## [Unreleased]` entries in `CHANGELOG.md` under a new
    `## [x.y.z] - YYYY-MM-DD` heading.
 2. Bump the `version` in `pyproject.toml` to match.
-3. Commit, merge to `main`.
+3. Commit, merge to `master`.
 4. Tag the merge commit `vx.y.z` and push the tag: `git tag vx.y.z && git push origin vx.y.z`.
 5. `.github/workflows/release.yml` builds the package and publishes a GitHub
    Release with notes pulled from that version's `CHANGELOG.md` section. A
