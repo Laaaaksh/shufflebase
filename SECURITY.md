@@ -7,7 +7,7 @@ not exposed as a public-facing service.
 
 ## Supported versions
 
-Only the latest release and `main` receive security fixes. This is a young
+Only the latest release and `master` receive security fixes. This is a young
 project with no long-term-support branches yet.
 
 ## What's in scope

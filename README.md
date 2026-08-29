@@ -54,16 +54,13 @@ Tonic Structural does this well, but it's quote-priced enterprise software, and 
 
 ## Install
 
-```sh
-pip install shufflebase[postgres]   # or shufflebase[mysql], or both
-```
-
-From source:
+From source (this is the only install path today — shufflebase isn't
+published on PyPI yet, see [CONTRIBUTING.md](CONTRIBUTING.md#release-procedure)):
 
 ```sh
 git clone https://github.com/Laaaaksh/shufflebase.git
 cd shufflebase
-pip install -e ".[postgres,mysql]"
+pip install -e ".[postgres,mysql]"   # or just one of postgres/mysql
 ```
 
 ## Usage
@@ -71,13 +68,19 @@ pip install -e ".[postgres,mysql]"
 Detect your schema and get a config pre-filled with suggested strategies:
 
 ```sh
-shufflebase introspect --source postgresql://user:pass@host/proddb -o config.yaml
+shufflebase introspect --source postgresql+psycopg://user:pass@host/proddb -o config.yaml
 ```
+
+(Use `mysql+pymysql://user:pass@host/proddb` for MySQL. The `+psycopg`/`+pymysql`
+part tells SQLAlchemy which driver to use — it's what the `postgres`/`mysql`
+extras above actually install; a bare `postgresql://` or `mysql://` URL falls
+back to a driver that isn't installed and fails with a confusing
+`ModuleNotFoundError`.)
 
 Open `config.yaml`, adjust any strategy you don't like, then run it:
 
 ```sh
-shufflebase run --config config.yaml --target postgresql://user:pass@host/staging
+shufflebase run --config config.yaml --target postgresql+psycopg://user:pass@host/staging
 ```
 
 ```
@@ -95,18 +98,22 @@ All foreign keys resolve correctly.
 Check any database's foreign keys independently, at any time:
 
 ```sh
-shufflebase validate --target postgresql://user:pass@host/staging
+shufflebase validate --target postgresql+psycopg://user:pass@host/staging
 ```
 
-Prefer a browser? `pip install shufflebase[web]` then `shufflebase serve` starts a dashboard on `http://127.0.0.1:8642` with the same connect → review → run flow shown in the GIF above.
+Prefer a browser? `pip install -e ".[web]"` then `shufflebase serve` starts a dashboard on `http://127.0.0.1:8642` with the same connect → review → run flow shown in the GIF above. (Port 8642 needs to be free — if something else is already listening on it, stop that process or run `shufflebase serve --port <other-port>`.)
+
+<p align="center">
+  <img src="docs/assets/screenshot-result.png" alt="The dashboard's Run step: a completed masking run showing rows written per table and a green 'All foreign keys resolve correctly' confirmation." width="640" />
+</p>
 
 ## Configuration
 
 `config.yaml` maps each column to a strategy:
 
 ```yaml
-source: postgresql://user:pass@host/proddb
-target: postgresql://user:pass@host/staging
+source: postgresql+psycopg://user:pass@host/proddb
+target: postgresql+psycopg://user:pass@host/staging
 seed: 42   # optional, for reproducible fake data across runs
 tables:
   customers:

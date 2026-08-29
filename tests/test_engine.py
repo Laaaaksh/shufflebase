@@ -56,9 +56,12 @@ def test_resynthesizing_a_natural_key_propagates_to_every_referencing_fk(
         assert order.customer_email == customers[order.customer_id]
 
 
-def test_shuffle_preserves_value_set_and_referential_integrity(
+def test_shuffling_an_fk_column_preserves_value_set_and_referential_integrity(
     customers_orders_db, empty_sqlite_db
 ):
+    """Shuffling the FK column itself (not the key it points at) is the safe
+    case: every value stays a valid, pre-existing customer id, just
+    reassigned to a different order row."""
     schema = introspect(customers_orders_db)
     config = RunConfig.from_schema(schema)
     config.tables["orders"]["customer_id"] = "shuffle"
@@ -74,6 +77,39 @@ def test_shuffle_preserves_value_set_and_referential_integrity(
     original = [1, 1, 2, 3]
     assert sorted(shuffled) == sorted(original)  # same multiset of values
     assert all(v in customer_ids for v in shuffled)  # every value still a valid FK target
+
+
+def test_shuffling_a_referenced_key_remaps_every_referencing_fk(
+    customers_orders_db, empty_sqlite_db
+):
+    """The dangerous case: shuffling customers.id (a column orders.customer_id
+    points at) permutes which row holds which id. Every order must follow its
+    *logical* customer -- identified here by the untouched `email` column,
+    which is itself a key (orders.customer_email references it) and so
+    defaults to "preserve" -- to its new id, not keep pointing at the old
+    numeric id which now belongs to a different customer."""
+    schema = introspect(customers_orders_db)
+    config = RunConfig.from_schema(schema)
+    config.tables["customers"]["id"] = "shuffle"
+    target = empty_sqlite_db()
+
+    result = MaskRun(customers_orders_db, target, config, seed=1).execute()
+    assert result.ok
+
+    with target.connect() as conn:
+        customers = {
+            row.id: row.email for row in conn.execute(text("SELECT id, email FROM customers"))
+        }
+        orders = list(conn.execute(text("SELECT customer_id, amount FROM orders")))
+
+    expected_email_by_amount = {
+        50: "alice@example.com",
+        75: "alice@example.com",
+        20: "bob@example.com",
+        5: "carol@example.com",
+    }
+    for order in orders:
+        assert customers[order.customer_id] == expected_email_by_amount[order.amount]
 
 
 def test_self_referencing_key_resynthesis(self_referencing_db, empty_sqlite_db):
