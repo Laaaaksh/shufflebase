@@ -65,6 +65,10 @@ pip install -e ".[postgres,mysql]"   # or just one of postgres/mysql
 
 ## Usage
 
+No database handy? `examples/demo/seed.sql` creates the `customers`/`orders`
+schema shown below and in the GIF above — load it into a scratch Postgres
+database and point the commands below at it to follow along with real output.
+
 Detect your schema and get a config pre-filled with suggested strategies:
 
 ```sh
@@ -119,7 +123,7 @@ tables:
   customers:
     id: preserve
     email: fake_email
-    name: fake_name
+    full_name: fake_name
   orders:
     id: preserve
     customer_id: preserve   # a foreign key column; inherits customers.id automatically
