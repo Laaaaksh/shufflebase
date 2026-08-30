@@ -22,6 +22,12 @@ This file is the project's committed home for project-intrinsic agent knowledge:
 - Composite primary/foreign keys are deliberately restricted to `preserve`/`shuffle` in `config.py`'s `validate()` (remapping a tuple key isn't implemented). If you add composite-key remap support, the composite-only checks in `validate()` and the single-column assumption in `engine.py`'s `_build_key_remaps`/`_transform_rows` both need updating together.
 - `shuffle` on a key column (a primary key, or a column another table's FK points at) must build a remap too, not just permute values in place — `_apply_shuffles` records the old->new pairing into the same `remaps` dict `_build_key_remaps` uses, so FK columns elsewhere follow the permutation the same way they'd follow a resynthesized key. Skipping this (as an earlier version did) makes `shufflebase run` report success and "All foreign keys resolve correctly" while silently reassigning every referencing row to the wrong logical parent — see `tests/test_engine.py::test_shuffling_a_referenced_key_remaps_every_referencing_fk`.
 - CI's `lint` job must install the `web` extra (`pip install -e ".[dev,web]"`), not just `dev` — `mypy` fails on missing `fastapi`/`pydantic`/`uvicorn` stubs otherwise, since `src/shufflebase/web/` and `cli.py`'s `serve` command import them.
+- `MaskRun.execute()` (`engine.py`) calls `metadata.create_all(self.target_engine)` then `INSERT`s — it never truncates existing tables. Re-running against an already-populated target hits a primary-key/unique conflict instead of overwriting; recreate the target database (or drop its tables) between runs.
+
+## Demo recording
+
+- `make demo` (`scripts/record-demo/run.sh`) boots a throwaway Postgres, seeds `examples/demo/seed.sql`, starts `shufflebase serve`, and drives it with a real Playwright browser (`record.js`) to regenerate `docs/assets/demo.mp4`/`demo.gif` for the README. See `scripts/record-demo/README.md`.
+- `record.js` runs everything in a single Playwright page/tab — `recordVideo` produces one video file per page, so a second tab's actions wouldn't land in the same recording.
 
 ## Testing
 

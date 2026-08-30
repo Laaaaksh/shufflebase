@@ -17,6 +17,7 @@
 </p>
 
 <p align="center">
+  <a href="#demo">Demo</a> ·
   <a href="#install">Install</a> ·
   <a href="#usage">Usage</a> ·
   <a href="#configuration">Configuration</a> ·
@@ -28,6 +29,16 @@
   <a href="SECURITY.md">Security</a>
 </p>
 
+## Demo
+
+<p align="center">
+  <img src="docs/assets/demo.gif" alt="Connecting shufflebase to a live Postgres database, reviewing suggested masking strategies, running a mask, and confirming referential integrity survived" width="720" />
+</p>
+
+The clip shows `shufflebase serve` against a live Postgres database with a `customers` → `orders` → `order_items` schema: introspecting the schema, reviewing (and hand-correcting) the suggested masking strategies, running a mask, and then the real before/after rows in both databases proving the masked emails/phones are unreadable while every foreign key still resolves.
+
+Full quality: [docs/assets/demo.mp4](docs/assets/demo.mp4). Re-record it yourself with `make demo` (see [scripts/record-demo](scripts/record-demo/README.md)).
+
 ## What it does
 
 - Reflects a Postgres or MySQL database's tables, columns, and foreign keys automatically — no manual schema re-entry.
@@ -36,12 +47,6 @@
 - Refuses to call a run successful without proof: after writing the target database, it queries that database directly to confirm every foreign key still resolves, and reports which ones don't rather than silently shipping a broken join.
 - Runs from a CLI (scriptable into a "refresh staging from prod" pipeline) or a small self-hosted web dashboard for reviewing strategies by hand.
 - Self-hosted only. Your database URL and its data never leave the process you run this in — there's no cloud service to opt out of.
-
-<p align="center">
-  <img src="docs/assets/demo.gif" alt="Connecting to a Postgres database, reviewing suggested masking strategies, and running a mask that produces a validated staging database" width="720" />
-</p>
-
-*The GIF above is a real recording of the running app (`shufflebase serve` against a live Postgres instance) — not a mockup.*
 
 ## Why not just use Tonic.ai or a find-and-replace script?
 
@@ -65,9 +70,10 @@ pip install -e ".[postgres,mysql]"   # or just one of postgres/mysql
 
 ## Usage
 
-No database handy? `examples/demo/seed.sql` creates the `customers`/`orders`
-schema shown below and in the GIF above — load it into a scratch Postgres
-database and point the commands below at it to follow along with real output.
+No database handy? `examples/demo/seed.sql` creates the `customers`/`orders`/
+`order_items` schema shown in the demo below — load it into a scratch
+Postgres database and point the commands below at it to follow along with
+real output.
 
 Detect your schema and get a config pre-filled with suggested strategies:
 
