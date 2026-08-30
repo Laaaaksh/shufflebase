@@ -1,0 +1,12 @@
+{
+  "name": "shufflebase-record-demo",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Dev-only Playwright recorder for shufflebase's README demo. Not published.",
+  "scripts": {
+    "record": "node record.js"
+  },
+  "devDependencies": {
+    "playwright": "^1.47.0"
+  }
+}
