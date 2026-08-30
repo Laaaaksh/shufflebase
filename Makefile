@@ -1,4 +1,4 @@
-.PHONY: build run test lint format tidy clean
+.PHONY: build run test lint format tidy clean demo
 
 build:
 	python -m build
@@ -20,3 +20,6 @@ format tidy:
 clean:
 	rm -rf build dist *.egg-info .pytest_cache .ruff_cache .mypy_cache .coverage htmlcov
 	find . -name "__pycache__" -type d -prune -exec rm -rf {} +
+
+demo:
+	scripts/record-demo/run.sh
